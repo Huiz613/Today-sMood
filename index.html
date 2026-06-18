@@ -1,0 +1,1492 @@
+
+html_code = '''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日情绪</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 0.5s ease;
+        }
+
+        /* ========== 主题1：创四所有人（哥特/阴暗风） ========== */
+        .theme-gothic {
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a0a2e 40%, #0d0d0d 100%);
+            color: #e0e0e0;
+        }
+        .theme-gothic .container {
+            background: rgba(20, 10, 30, 0.85);
+            border: 1px solid #4a004a;
+            box-shadow: 0 0 30px rgba(100, 0, 100, 0.3);
+        }
+        .theme-gothic input, .theme-gothic select, .theme-gothic textarea {
+            background: #1a0a1a;
+            color: #e0e0e0;
+            border: 1px solid #4a004a;
+        }
+        .theme-gothic button {
+            background: linear-gradient(135deg, #4a004a, #2a002a);
+            color: #e0e0e0;
+            border: 1px solid #6a006a;
+        }
+        .theme-gothic button:hover {
+            background: linear-gradient(135deg, #6a006a, #4a004a);
+        }
+        .theme-gothic .record-card {
+            background: rgba(30, 10, 40, 0.9);
+            border: 1px solid #5a005a;
+        }
+        .theme-gothic .chart-container {
+            background: rgba(20, 10, 30, 0.9);
+            border: 1px solid #4a004a;
+        }
+        .theme-gothic .modal-content {
+            background: #1a0a1a;
+            border: 1px solid #5a005a;
+        }
+
+        /* ========== 主题2：平平无奇（蓝白/雨天学校） ========== */
+        .theme-normal {
+            background: linear-gradient(180deg, #a8c8ec 0%, #c8ddf0 50%, #d0e0f0 100%);
+            color: #2c3e50;
+        }
+        .theme-normal .container {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #a0c0e0;
+            box-shadow: 0 0 20px rgba(100, 150, 200, 0.2);
+        }
+        .theme-normal input, .theme-normal select, .theme-normal textarea {
+            background: #f0f5fa;
+            color: #2c3e50;
+            border: 1px solid #a0c0e0;
+        }
+        .theme-normal button {
+            background: linear-gradient(135deg, #4a90d9, #357abd);
+            color: white;
+            border: none;
+        }
+        .theme-normal button:hover {
+            background: linear-gradient(135deg, #357abd, #2a6aad);
+        }
+        .theme-normal .record-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #b0d0e8;
+        }
+        .theme-normal .chart-container {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #a0c0e0;
+        }
+        .theme-normal .modal-content {
+            background: #ffffff;
+            border: 1px solid #a0c0e0;
+        }
+
+        /* ========== 主题3：给所有人好脸色（多巴胺/海滩） ========== */
+        .theme-happy {
+            background: linear-gradient(180deg, #87CEEB 0%, #FFE4B5 50%, #F0E68C 100%);
+            color: #4a3728;
+        }
+        .theme-happy .container {
+            background: rgba(255, 248, 220, 0.9);
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 25px rgba(255, 200, 0, 0.3);
+        }
+        .theme-happy input, .theme-happy select, .theme-happy textarea {
+            background: #FFF8DC;
+            color: #4a3728;
+            border: 2px solid #FFD700;
+        }
+        .theme-happy button {
+            background: linear-gradient(135deg, #FF6B6B, #FFD93D);
+            color: #4a3728;
+            border: none;
+            font-weight: bold;
+        }
+        .theme-happy button:hover {
+            background: linear-gradient(135deg, #FF8E8E, #FFE066);
+        }
+        .theme-happy .record-card {
+            background: rgba(255, 250, 230, 0.95);
+            border: 2px solid #FFD700;
+        }
+        .theme-happy .chart-container {
+            background: rgba(255, 248, 220, 0.95);
+            border: 2px solid #FFD700;
+        }
+        .theme-happy .modal-content {
+            background: #FFF8DC;
+            border: 2px solid #FFD700;
+        }
+
+        /* ========== 通用布局 ========== */
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 15px;
+            position: relative;
+            z-index: 10;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.05em;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #888;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .hint {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 5px;
+        }
+        .char-count {
+            text-align: right;
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 3px;
+        }
+        .char-count.warning { color: #e74c3c; }
+        button {
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ========== 情绪泡沫区域 ========== */
+        .bubble-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed rgba(128,128,128,0.3);
+        }
+        .bubble-section h2 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .filter-group select {
+            width: auto;
+            min-width: 120px;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+        }
+        .search-box button {
+            padding: 12px 20px;
+        }
+
+        /* ========== 记录卡片 ========== */
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .record-card {
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .record-card:hover {
+            transform: translateX(5px);
+        }
+        .record-info {
+            flex: 1;
+        }
+        .record-emoji {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        .record-date {
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+        .record-text {
+            font-size: 1.05em;
+            line-height: 1.5;
+        }
+        .record-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .record-actions button {
+            padding: 6px 14px;
+            font-size: 0.85em;
+        }
+        .btn-edit {
+            background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+            color: white !important;
+            border: none !important;
+        }
+        .btn-delete {
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        /* ========== 图表区域 ========== */
+        .chart-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed rgba(128,128,128,0.3);
+        }
+        .chart-section h2 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        #chartCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1em;
+        }
+        .legend-emoji {
+            font-size: 1.5em;
+        }
+
+        /* ========== 导出按钮 ========== */
+        .export-section {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-export {
+            background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        /* ========== 模态框 ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .modal-content .form-group {
+            margin-bottom: 15px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* ========== 背景动画层 ========== */
+        #bgCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ========== 主题选择卡片（隐藏描述文字） ========== */
+        .theme-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .theme-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 25px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        .theme-card:hover {
+            transform: translateY(-3px);
+        }
+        .theme-card.selected {
+            border-color: #FFD700;
+            transform: scale(1.02);
+        }
+        .theme-card-gothic {
+            background: linear-gradient(135deg, #1a0a2e, #0d0d0d);
+            color: #e0e0e0;
+        }
+        .theme-card-normal {
+            background: linear-gradient(135deg, #a8c8ec, #d0e0f0);
+            color: #2c3e50;
+        }
+        .theme-card-happy {
+            background: linear-gradient(135deg, #FFE4B5, #F0E68C);
+            color: #4a3728;
+        }
+        .theme-card h3 {
+            font-size: 1.3em;
+        }
+
+        /* ========== 空状态 ========== */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.6;
+        }
+        .empty-state .big-emoji {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 600px) {
+            .container { padding: 15px; margin: 10px; }
+            h1 { font-size: 1.6em; }
+            .theme-card { min-width: 100%; }
+            .record-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .record-actions { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body class="theme-normal">
+    <canvas id="bgCanvas"></canvas>
+
+    <div class="container">
+        <h1>今日情绪</h1>
+
+        <!-- 日期选择 -->
+        <div class="form-group">
+            <label for="dateInput">今日日期</label>
+            <input type="date" id="dateInput" required>
+        </div>
+
+        <!-- 情绪主题选择 -->
+        <div class="form-group">
+            <label>选择今日情绪主题</label>
+            <div class="theme-options">
+                <div class="theme-card theme-card-gothic" data-theme="gothic" onclick="selectTheme('gothic')">
+                    <h3>创四所有人</h3>
+                </div>
+                <div class="theme-card theme-card-normal" data-theme="normal" onclick="selectTheme('normal')">
+                    <h3>平平无奇</h3>
+                </div>
+                <div class="theme-card theme-card-happy" data-theme="happy" onclick="selectTheme('happy')">
+                    <h3>给所有人好脸色</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- 一句话留言 -->
+        <div class="form-group" id="messageSection" style="display:none;">
+            <label for="messageInput">一句话拿走不谢</label>
+            <textarea id="messageInput" maxlength="50" placeholder="输入你的一句话总结今天的活动，或者今日最大的感受..." oninput="updateCharCount()"></textarea>
+            <p class="hint">可以输入你的一句话总结今天的活动、或者今日最大的感受</p>
+            <p class="char-count" id="charCount">0 / 50 字</p>
+        </div>
+
+        <!-- 提交按钮 -->
+        <div class="btn-group" id="submitSection" style="display:none;">
+            <button onclick="submitRecord()">提交记录</button>
+            <button onclick="clearForm()">重置</button>
+        </div>
+
+        <!-- 情绪泡沫（记录列表） -->
+        <div class="bubble-section" id="bubbleSection" style="display:none;">
+            <h2>情绪泡沫</h2>
+
+            <!-- 搜索 -->
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索文字或时间..." oninput="filterRecords()">
+                <button onclick="clearSearch()">清除</button>
+            </div>
+
+            <!-- 时间筛选 -->
+            <div class="filter-group">
+                <label>时间筛选：</label>
+                <select id="filterType" onchange="updateFilterOptions()">
+                    <option value="all">全部</option>
+                    <option value="week">按周</option>
+                    <option value="month">按月</option>
+                    <option value="year">按年</option>
+                </select>
+                <select id="filterValue" onchange="filterRecords()" style="display:none;">
+                    <option value="">请选择</option>
+                </select>
+            </div>
+
+            <!-- 图表 -->
+            <div class="chart-section">
+                <h2>情绪分布图</h2>
+                <div class="chart-container">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-emoji">🍾</span>
+                        <span>给所有人好脸色</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-emoji">💧</span>
+                        <span>平平无奇</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-emoji">😈</span>
+                        <span>创四所有人</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 记录列表 -->
+            <div class="record-list" id="recordList"></div>
+
+            <!-- 导出 -->
+            <div class="export-section">
+                <button class="btn-export" onclick="exportJSON()">导出 JSON</button>
+                <button class="btn-export" onclick="exportCSV()">导出 CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <h3>编辑记录</h3>
+            <div class="form-group">
+                <label>日期</label>
+                <input type="date" id="editDate">
+            </div>
+            <div class="form-group">
+                <label>情绪主题</label>
+                <select id="editTheme">
+                    <option value="gothic">创四所有人</option>
+                    <option value="normal">平平无奇</option>
+                    <option value="happy">给所有人好脸色</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>一句话</label>
+                <textarea id="editMessage" maxlength="50"></textarea>
+                <p class="char-count" id="editCharCount">0 / 50 字</p>
+            </div>
+            <div class="modal-actions">
+                <button onclick="saveEdit()">保存</button>
+                <button onclick="closeModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 数据存储 ==========
+        let records = JSON.parse(localStorage.getItem('emotionRecords')) || [];
+        let currentTheme = '';
+        let editingId = null;
+        let bgAnimationId = null;
+        let bgCanvas, bgCtx;
+        let bgObjects = [];
+        let lastSpawnTime = 0;
+
+        // 主题配置
+        const themeConfig = {
+            gothic: {
+                emoji: '😈',
+                name: '创四所有人',
+                class: 'theme-gothic'
+            },
+            normal: {
+                emoji: '💧',
+                name: '平平无奇',
+                class: 'theme-normal'
+            },
+            happy: {
+                emoji: '🍾',
+                name: '给所有人好脸色',
+                class: 'theme-happy'
+            }
+        };
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            bgCanvas = document.getElementById('bgCanvas');
+            bgCtx = bgCanvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // 设置今天日期
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+
+            renderRecords();
+            updateFilterOptions();
+        });
+
+        function resizeCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+
+        // ========== 主题选择 ==========
+        function selectTheme(theme) {
+            currentTheme = theme;
+
+            // 更新卡片选中状态
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.classList.remove('selected');
+                if (card.dataset.theme === theme) {
+                    card.classList.add('selected');
+                }
+            });
+
+            // 切换页面主题
+            document.body.className = themeConfig[theme].class;
+
+            // 显示留言区域
+            document.getElementById('messageSection').style.display = 'block';
+            document.getElementById('submitSection').style.display = 'flex';
+
+            // 启动背景动画
+            startBgAnimation(theme);
+        }
+
+        // ========== 背景动画系统 ==========
+        function startBgAnimation(theme) {
+            // 清除之前的动画
+            if (bgAnimationId) {
+                cancelAnimationFrame(bgAnimationId);
+            }
+            bgObjects = [];
+            lastSpawnTime = 0;
+
+            // 初始化背景元素
+            initBgObjects(theme);
+
+            function animate(timestamp) {
+                bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+                // 绘制主题背景
+                drawThemeBackground(theme);
+
+                // 每6秒生成新对象
+                if (timestamp - lastSpawnTime > 6000) {
+                    spawnObject(theme);
+                    lastSpawnTime = timestamp;
+                }
+
+                // 更新和绘制对象
+                bgObjects = bgObjects.filter(obj => {
+                    updateObject(obj);
+                    drawObject(obj);
+                    return obj.active;
+                });
+
+                bgAnimationId = requestAnimationFrame(animate);
+            }
+            bgAnimationId = requestAnimationFrame(animate);
+        }
+
+        function initBgObjects(theme) {
+            if (theme === 'gothic') {
+                // 初始化蝙蝠
+                for (let i = 0; i < 3; i++) {
+                    bgObjects.push(createBat());
+                }
+            } else if (theme === 'normal') {
+                // 初始化雨滴
+                for (let i = 0; i < 50; i++) {
+                    bgObjects.push(createRaindrop());
+                }
+                // 初始化Q版学生
+                for (let i = 0; i < 4; i++) {
+                    bgObjects.push(createStudent());
+                }
+            } else if (theme === 'happy') {
+                // 初始化游客
+                for (let i = 0; i < 6; i++) {
+                    bgObjects.push(createTourist());
+                }
+            }
+        }
+
+        function spawnObject(theme) {
+            if (theme === 'gothic') {
+                // 每6秒骷髅头滚过
+                bgObjects.push(createSkull());
+            } else if (theme === 'normal') {
+                // 每6秒麻雀飞过
+                bgObjects.push(createSparrow());
+            } else if (theme === 'happy') {
+                // 每6秒金毛叼树枝跑过
+                bgObjects.push(createGoldenRetriever());
+            }
+        }
+
+        // ========== 哥特主题对象 ==========
+        function createBat() {
+            return {
+                type: 'bat',
+                x: Math.random() * bgCanvas.width,
+                y: Math.random() * bgCanvas.height * 0.5,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 1,
+                size: 15 + Math.random() * 10,
+                wingPhase: Math.random() * Math.PI * 2,
+                active: true
+            };
+        }
+
+        function createSkull() {
+            return {
+                type: 'skull',
+                x: -50,
+                y: bgCanvas.height - 80 - Math.random() * 100,
+                vx: 2 + Math.random() * 2,
+                vy: 0,
+                rotation: 0,
+                rotSpeed: 0.05,
+                size: 30,
+                active: true
+            };
+        }
+
+        // ========== 平平无奇主题对象 ==========
+        function createRaindrop() {
+            return {
+                type: 'raindrop',
+                x: Math.random() * bgCanvas.width,
+                y: Math.random() * bgCanvas.height,
+                vy: 3 + Math.random() * 4,
+                length: 10 + Math.random() * 15,
+                active: true
+            };
+        }
+
+        function createStudent() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
+            return {
+                type: 'student',
+                x: Math.random() * bgCanvas.width,
+                y: bgCanvas.height - 60 - Math.random() * 40,
+                vx: (Math.random() - 0.5) * 0.8,
+                size: 20,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                walkPhase: Math.random() * Math.PI * 2,
+                active: true
+            };
+        }
+
+        function createSparrow() {
+            return {
+                type: 'sparrow',
+                x: -30,
+                y: 50 + Math.random() * (bgCanvas.height * 0.4),
+                vx: 3 + Math.random() * 2,
+                vy: Math.sin(Math.random() * Math.PI) * 1,
+                wingPhase: 0,
+                size: 15,
+                active: true
+            };
+        }
+
+        // ========== 给所有人好脸色主题对象 ==========
+        function createTourist() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
+            return {
+                type: 'tourist',
+                x: Math.random() * bgCanvas.width,
+                y: bgCanvas.height - 80 - Math.random() * 60,
+                vx: (Math.random() - 0.5) * 0.5,
+                size: 18,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                walkPhase: Math.random() * Math.PI * 2,
+                active: true
+            };
+        }
+
+        function createGoldenRetriever() {
+            return {
+                type: 'golden',
+                x: -80,
+                y: bgCanvas.height - 70,
+                vx: 2.5 + Math.random() * 1.5,
+                tailPhase: 0,
+                size: 35,
+                active: true
+            };
+        }
+
+        // ========== 更新对象 ==========
+        function updateObject(obj) {
+            obj.x += obj.vx || 0;
+            obj.y += obj.vy || 0;
+
+            if (obj.type === 'bat') {
+                obj.wingPhase += 0.15;
+                if (obj.x < -50 || obj.x > bgCanvas.width + 50) obj.vx *= -1;
+                if (obj.y < -50 || obj.y > bgCanvas.height * 0.6) obj.vy *= -1;
+            } else if (obj.type === 'skull') {
+                obj.rotation += obj.rotSpeed;
+                if (obj.x > bgCanvas.width + 100) obj.active = false;
+            } else if (obj.type === 'raindrop') {
+                if (obj.y > bgCanvas.height) {
+                    obj.y = -20;
+                    obj.x = Math.random() * bgCanvas.width;
+                }
+            } else if (obj.type === 'student') {
+                obj.walkPhase += 0.1;
+                if (obj.x < -30 || obj.x > bgCanvas.width + 30) obj.vx *= -1;
+            } else if (obj.type === 'sparrow') {
+                obj.wingPhase += 0.2;
+                obj.y += Math.sin(obj.wingPhase * 0.5) * 0.5;
+                if (obj.x > bgCanvas.width + 50) obj.active = false;
+            } else if (obj.type === 'tourist') {
+                obj.walkPhase += 0.08;
+                if (obj.x < -30 || obj.x > bgCanvas.width + 30) obj.vx *= -1;
+            } else if (obj.type === 'golden') {
+                obj.tailPhase += 0.15;
+                if (obj.x > bgCanvas.width + 100) obj.active = false;
+            }
+        }
+
+        // ========== 绘制主题背景 ==========
+        function drawThemeBackground(theme) {
+            if (theme === 'gothic') {
+                // 绘制月亮
+                bgCtx.fillStyle = 'rgba(200, 200, 180, 0.3)';
+                bgCtx.beginPath();
+                bgCtx.arc(bgCanvas.width * 0.8, 80, 40, 0, Math.PI * 2);
+                bgCtx.fill();
+
+                // 绘制古堡剪影
+                drawCastle();
+
+                // 绘制枯树
+                drawDeadTree(100, bgCanvas.height - 50);
+                drawDeadTree(bgCanvas.width - 150, bgCanvas.height - 50);
+
+            } else if (theme === 'normal') {
+                // 绘制学校建筑剪影
+                drawSchool();
+
+                // 绘制街道
+                bgCtx.fillStyle = 'rgba(100, 100, 100, 0.2)';
+                bgCtx.fillRect(0, bgCanvas.height - 40, bgCanvas.width, 40);
+
+            } else if (theme === 'happy') {
+                // 绘制太阳
+                bgCtx.fillStyle = 'rgba(255, 220, 50, 0.4)';
+                bgCtx.beginPath();
+                bgCtx.arc(bgCanvas.width * 0.85, 80, 50, 0, Math.PI * 2);
+                bgCtx.fill();
+
+                // 绘制海面
+                bgCtx.fillStyle = 'rgba(64, 164, 255, 0.3)';
+                bgCtx.fillRect(0, bgCanvas.height - 100, bgCanvas.width, 100);
+
+                // 绘制沙滩
+                bgCtx.fillStyle = 'rgba(238, 203, 140, 0.4)';
+                bgCtx.fillRect(0, bgCanvas.height - 50, bgCanvas.width, 50);
+
+                // 绘制棕榈树
+                drawPalmTree(80, bgCanvas.height - 50);
+                drawPalmTree(bgCanvas.width - 100, bgCanvas.height - 50);
+            }
+        }
+
+        function drawCastle() {
+            bgCtx.fillStyle = 'rgba(30, 10, 50, 0.6)';
+            const cx = bgCanvas.width * 0.6;
+            const cy = bgCanvas.height - 50;
+
+            // 主塔
+            bgCtx.fillRect(cx - 40, cy - 120, 80, 120);
+            // 塔顶
+            bgCtx.beginPath();
+            bgCtx.moveTo(cx - 50, cy - 120);
+            bgCtx.lineTo(cx, cy - 170);
+            bgCtx.lineTo(cx + 50, cy - 120);
+            bgCtx.closePath();
+            bgCtx.fill();
+
+            // 侧塔
+            bgCtx.fillRect(cx - 80, cy - 80, 40, 80);
+            bgCtx.beginPath();
+            bgCtx.moveTo(cx - 85, cy - 80);
+            bgCtx.lineTo(cx - 60, cy - 110);
+            bgCtx.lineTo(cx - 35, cy - 80);
+            bgCtx.closePath();
+            bgCtx.fill();
+
+            bgCtx.fillRect(cx + 40, cy - 80, 40, 80);
+            bgCtx.beginPath();
+            bgCtx.moveTo(cx + 35, cy - 80);
+            bgCtx.lineTo(cx + 60, cy - 110);
+            bgCtx.lineTo(cx + 85, cy - 80);
+            bgCtx.closePath();
+            bgCtx.fill();
+
+            // 窗户（发光）
+            bgCtx.fillStyle = 'rgba(200, 150, 50, 0.4)';
+            bgCtx.fillRect(cx - 15, cy - 80, 10, 20);
+            bgCtx.fillRect(cx + 5, cy - 80, 10, 20);
+        }
+
+        function drawDeadTree(x, y) {
+            bgCtx.strokeStyle = 'rgba(40, 20, 10, 0.7)';
+            bgCtx.lineWidth = 4;
+            bgCtx.beginPath();
+            bgCtx.moveTo(x, y);
+            bgCtx.lineTo(x, y - 100);
+            bgCtx.stroke();
+
+            // 树枝
+            bgCtx.lineWidth = 2;
+            bgCtx.beginPath();
+            bgCtx.moveTo(x, y - 60);
+            bgCtx.lineTo(x - 30, y - 90);
+            bgCtx.stroke();
+            bgCtx.beginPath();
+            bgCtx.moveTo(x, y - 80);
+            bgCtx.lineTo(x + 25, y - 110);
+            bgCtx.stroke();
+
+            // 乌鸦
+            bgCtx.fillStyle = 'rgba(20, 10, 10, 0.8)';
+            bgCtx.beginPath();
+            bgCtx.ellipse(x + 25, y - 115, 6, 4, 0, 0, Math.PI * 2);
+            bgCtx.fill();
+        }
+
+        function drawSchool() {
+            bgCtx.fillStyle = 'rgba(100, 130, 170, 0.3)';
+            const cx = bgCanvas.width * 0.3;
+            const cy = bgCanvas.height - 50;
+
+            // 教学楼
+            bgCtx.fillRect(cx - 100, cy - 150, 200, 150);
+            // 屋顶
+            bgCtx.beginPath();
+            bgCtx.moveTo(cx - 110, cy - 150);
+            bgCtx.lineTo(cx, cy - 190);
+            bgCtx.lineTo(cx + 110, cy - 150);
+            bgCtx.closePath();
+            bgCtx.fill();
+
+            // 窗户
+            bgCtx.fillStyle = 'rgba(200, 220, 240, 0.4)';
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 4; col++) {
+                    bgCtx.fillRect(cx - 80 + col * 45, cy - 130 + row * 40, 25, 25);
+                }
+            }
+        }
+
+        function drawPalmTree(x, y) {
+            bgCtx.strokeStyle = 'rgba(139, 90, 43, 0.7)';
+            bgCtx.lineWidth = 5;
+            bgCtx.beginPath();
+            bgCtx.moveTo(x, y);
+            bgCtx.quadraticCurveTo(x + 10, y - 60, x + 30, y - 100);
+            bgCtx.stroke();
+
+            // 树叶
+            bgCtx.strokeStyle = 'rgba(34, 139, 34, 0.6)';
+            bgCtx.lineWidth = 3;
+            const leafX = x + 30, leafY = y - 100;
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                bgCtx.beginPath();
+                bgCtx.moveTo(leafX, leafY);
+                bgCtx.quadraticCurveTo(
+                    leafX + Math.cos(angle) * 20,
+                    leafY + Math.sin(angle) * 10,
+                    leafX + Math.cos(angle) * 40,
+                    leafY + Math.sin(angle) * 30
+                );
+                bgCtx.stroke();
+            }
+        }
+
+        // ========== 绘制对象 ==========
+        function drawObject(obj) {
+            bgCtx.save();
+
+            if (obj.type === 'bat') {
+                bgCtx.translate(obj.x, obj.y);
+                const wingY = Math.sin(obj.wingPhase) * 8;
+                bgCtx.fillStyle = 'rgba(30, 10, 40, 0.7)';
+                // 身体
+                bgCtx.beginPath();
+                bgCtx.ellipse(0, 0, 6, 4, 0, 0, Math.PI * 2);
+                bgCtx.fill();
+                // 左翅膀
+                bgCtx.beginPath();
+                bgCtx.moveTo(-4, 0);
+                bgCtx.quadraticCurveTo(-15, -wingY - 5, -20, wingY);
+                bgCtx.quadraticCurveTo(-10, wingY + 3, -4, 2);
+                bgCtx.fill();
+                // 右翅膀
+                bgCtx.beginPath();
+                bgCtx.moveTo(4, 0);
+                bgCtx.quadraticCurveTo(15, -wingY - 5, 20, wingY);
+                bgCtx.quadraticCurveTo(10, wingY + 3, 4, 2);
+                bgCtx.fill();
+
+            } else if (obj.type === 'skull') {
+                bgCtx.translate(obj.x, obj.y);
+                bgCtx.rotate(obj.rotation);
+                bgCtx.font = `${obj.size}px Arial`;
+                bgCtx.textAlign = 'center';
+                bgCtx.textBaseline = 'middle';
+                bgCtx.fillText('💀', 0, 0);
+
+            } else if (obj.type === 'raindrop') {
+                bgCtx.strokeStyle = 'rgba(150, 180, 220, 0.5)';
+                bgCtx.lineWidth = 1.5;
+                bgCtx.beginPath();
+                bgCtx.moveTo(obj.x, obj.y);
+                bgCtx.lineTo(obj.x, obj.y + obj.length);
+                bgCtx.stroke();
+
+            } else if (obj.type === 'student') {
+                bgCtx.translate(obj.x, obj.y);
+                const bounce = Math.sin(obj.walkPhase) * 2;
+                // 头
+                bgCtx.fillStyle = obj.color;
+                bgCtx.beginPath();
+                bgCtx.arc(0, -obj.size + bounce, 8, 0, Math.PI * 2);
+                bgCtx.fill();
+                // 身体
+                bgCtx.fillRect(-6, -obj.size + 8 + bounce, 12, 12);
+                // 腿
+                const legOffset = Math.sin(obj.walkPhase) * 4;
+                bgCtx.fillRect(-5, -obj.size + 18 + bounce, 4, 8 + legOffset);
+                bgCtx.fillRect(1, -obj.size + 18 + bounce, 4, 8 - legOffset);
+                // 伞（雨天）
+                bgCtx.fillStyle = 'rgba(200, 50, 50, 0.6)';
+                bgCtx.beginPath();
+                bgCtx.arc(0, -obj.size - 5 + bounce, 15, Math.PI, 0);
+                bgCtx.fill();
+
+            } else if (obj.type === 'sparrow') {
+                bgCtx.translate(obj.x, obj.y);
+                const wingY = Math.sin(obj.wingPhase) * 5;
+                bgCtx.font = '16px Arial';
+                bgCtx.textAlign = 'center';
+                // 身体
+                bgCtx.fillText('🐦', 0, 0);
+
+            } else if (obj.type === 'tourist') {
+                bgCtx.translate(obj.x, obj.y);
+                const bounce = Math.sin(obj.walkPhase) * 1.5;
+                // 头
+                bgCtx.fillStyle = obj.color;
+                bgCtx.beginPath();
+                bgCtx.arc(0, -obj.size + bounce, 7, 0, Math.PI * 2);
+                bgCtx.fill();
+                // 身体
+                bgCtx.fillRect(-5, -obj.size + 6 + bounce, 10, 10);
+                // 腿
+                const legOffset = Math.sin(obj.walkPhase) * 3;
+                bgCtx.fillRect(-4, -obj.size + 14 + bounce, 3, 7 + legOffset);
+                bgCtx.fillRect(1, -obj.size + 14 + bounce, 3, 7 - legOffset);
+                // 遮阳帽
+                bgCtx.fillStyle = '#FFD700';
+                bgCtx.beginPath();
+                bgCtx.ellipse(0, -obj.size - 2 + bounce, 12, 3, 0, 0, Math.PI * 2);
+                bgCtx.fill();
+
+            } else if (obj.type === 'golden') {
+                bgCtx.translate(obj.x, obj.y);
+                // 金毛狗
+                bgCtx.font = `${obj.size}px Arial`;
+                bgCtx.textAlign = 'center';
+                bgCtx.textBaseline = 'middle';
+                bgCtx.fillText('🐕', 0, 0);
+                // 树枝
+                bgCtx.font = '20px Arial';
+                bgCtx.fillText('🌿', 15, -5);
+                // 尾巴摆动
+                const tailWag = Math.sin(obj.tailPhase) * 5;
+                bgCtx.font = '15px Arial';
+                bgCtx.fillText('〰️', -20, -5 + tailWag);
+            }
+
+            bgCtx.restore();
+        }
+
+        // ========== 字符计数 ==========
+        function updateCharCount() {
+            const input = document.getElementById('messageInput');
+            const count = input.value.length;
+            const counter = document.getElementById('charCount');
+            counter.textContent = count + ' / 50 字';
+            if (count >= 45) {
+                counter.classList.add('warning');
+            } else {
+                counter.classList.remove('warning');
+            }
+        }
+
+        // ========== 提交记录 ==========
+        function submitRecord() {
+            const date = document.getElementById('dateInput').value;
+            const message = document.getElementById('messageInput').value.trim();
+
+            if (!date) {
+                alert('请选择日期！');
+                return;
+            }
+            if (!currentTheme) {
+                alert('请选择情绪主题！');
+                return;
+            }
+            if (!message) {
+                alert('请输入一句话！');
+                return;
+            }
+            if (message.length > 50) {
+                alert('字数不能超过50字！');
+                return;
+            }
+
+            const record = {
+                id: Date.now(),
+                date: date,
+                theme: currentTheme,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+
+            records.unshift(record);
+            saveRecords();
+            renderRecords();
+            clearForm();
+
+            // 显示情绪泡沫区域
+            document.getElementById('bubbleSection').style.display = 'block';
+
+            alert('记录提交成功！');
+        }
+
+        function clearForm() {
+            document.getElementById('messageInput').value = '';
+            document.getElementById('charCount').textContent = '0 / 50 字';
+            document.getElementById('charCount').classList.remove('warning');
+        }
+
+        function saveRecords() {
+            localStorage.setItem('emotionRecords', JSON.stringify(records));
+        }
+
+        // ========== 渲染记录列表 ==========
+        function renderRecords() {
+            const list = document.getElementById('recordList');
+            const filtered = getFilteredRecords();
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-emoji">🫧</div>
+                        <p>还没有情绪记录，快来添加第一条吧！</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = filtered.map(r => `
+                    <div class="record-card">
+                        <span class="record-emoji">${themeConfig[r.theme].emoji}</span>
+                        <div class="record-info">
+                            <div class="record-date">${r.date} · ${themeConfig[r.theme].name}</div>
+                            <div class="record-text">${escapeHtml(r.message)}</div>
+                        </div>
+                        <div class="record-actions">
+                            <button class="btn-edit" onclick="editRecord(${r.id})">编辑</button>
+                            <button class="btn-delete" onclick="deleteRecord(${r.id})">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            drawChart(filtered);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== 筛选功能 ==========
+        function getFilteredRecords() {
+            let filtered = [...records];
+
+            // 文字/时间搜索
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (search) {
+                filtered = filtered.filter(r =>
+                    r.message.toLowerCase().includes(search) ||
+                    r.date.includes(search)
+                );
+            }
+
+            // 时间筛选
+            const filterType = document.getElementById('filterType').value;
+            const filterValue = document.getElementById('filterValue').value;
+
+            if (filterType !== 'all' && filterValue) {
+                filtered = filtered.filter(r => {
+                    const date = new Date(r.date);
+                    if (filterType === 'week') {
+                        return getWeekString(date) === filterValue;
+                    } else if (filterType === 'month') {
+                        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}` === filterValue;
+                    } else if (filterType === 'year') {
+                        return String(date.getFullYear()) === filterValue;
+                    }
+                    return true;
+                });
+            }
+
+            return filtered;
+        }
+
+        function filterRecords() {
+            renderRecords();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filterRecords();
+        }
+
+        function getWeekString(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() - d.getDay() + 1);
+            return `${d.getFullYear()}-W${String(Math.ceil((d - new Date(d.getFullYear(), 0, 1)) / 604800000) + 1).padStart(2, '0')}`;
+        }
+
+        function updateFilterOptions() {
+            const filterType = document.getElementById('filterType').value;
+            const filterValue = document.getElementById('filterValue');
+
+            filterValue.innerHTML = '<option value="">请选择</option>';
+            filterValue.style.display = filterType === 'all' ? 'none' : 'inline-block';
+
+            if (filterType === 'week') {
+                const weeks = new Set();
+                records.forEach(r => {
+                    weeks.add(getWeekString(new Date(r.date)));
+                });
+                [...weeks].sort().reverse().forEach(w => {
+                    filterValue.innerHTML += `<option value="${w}">${w}</option>`;
+                });
+            } else if (filterType === 'month') {
+                const months = new Set();
+                records.forEach(r => {
+                    const d = new Date(r.date);
+                    months.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+                });
+                [...months].sort().reverse().forEach(m => {
+                    filterValue.innerHTML += `<option value="${m}">${m}</option>`;
+                });
+            } else if (filterType === 'year') {
+                const years = new Set();
+                records.forEach(r => {
+                    years.add(String(new Date(r.date).getFullYear()));
+                });
+                [...years].sort().reverse().forEach(y => {
+                    filterValue.innerHTML += `<option value="${y}">${y}年</option>`;
+                });
+            }
+
+            filterRecords();
+        }
+
+        // ========== 图表绘制 ==========
+        function drawChart(data) {
+            const canvas = document.getElementById('chartCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            const w = canvas.width;
+            const h = canvas.height;
+            const padding = { top: 40, right: 40, bottom: 60, left: 60 };
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (data.length === 0) {
+                ctx.fillStyle = '#888';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('暂无数据', w / 2, h / 2);
+                return;
+            }
+
+            // 按日期排序
+            const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Y轴：三个情绪（从上到下：香槟、水滴、邪恶）
+            const emotions = ['happy', 'normal', 'gothic'];
+            const emotionEmojis = ['🍾', '💧', '😈'];
+            const emotionColors = ['#FFD700', '#4a90d9', '#8B008B'];
+
+            const chartW = w - padding.left - padding.right;
+            const chartH = h - padding.top - padding.bottom;
+            const yStep = chartH / (emotions.length - 1);
+
+            // 绘制坐标轴
+            ctx.strokeStyle = 'rgba(128,128,128,0.3)';
+            ctx.lineWidth = 1;
+
+            // Y轴
+            ctx.beginPath();
+            ctx.moveTo(padding.left, padding.top);
+            ctx.lineTo(padding.left, h - padding.bottom);
+            ctx.stroke();
+
+            // X轴
+            ctx.beginPath();
+            ctx.moveTo(padding.left, h - padding.bottom);
+            ctx.lineTo(w - padding.right, h - padding.bottom);
+            ctx.stroke();
+
+            // Y轴标签和网格线
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            emotions.forEach((emo, i) => {
+                const y = padding.top + i * yStep;
+                // 网格线
+                ctx.strokeStyle = 'rgba(128,128,128,0.1)';
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(w - padding.right, y);
+                ctx.stroke();
+                // 标签
+                ctx.fillStyle = emotionColors[i];
+                ctx.fillText(emotionEmojis[i], padding.left - 10, y);
+            });
+
+            // X轴标签（日期）
+            const xStep = chartW / (sorted.length > 1 ? sorted.length - 1 : 1);
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = '#888';
+
+            const maxLabels = Math.min(sorted.length, 8);
+            const labelStep = Math.ceil(sorted.length / maxLabels);
+
+            sorted.forEach((r, i) => {
+                if (i % labelStep === 0 || i === sorted.length - 1) {
+                    const x = padding.left + (sorted.length > 1 ? i * xStep : chartW / 2);
+                    ctx.fillText(r.date.slice(5), x, h - padding.bottom + 8);
+                }
+            });
+
+            // 绘制数据点和连线
+            const points = sorted.map((r, i) => {
+                const x = padding.left + (sorted.length > 1 ? i * xStep : chartW / 2);
+                const y = padding.top + emotions.indexOf(r.theme) * yStep;
+                return { x, y, theme: r.theme, emoji: themeConfig[r.theme].emoji };
+            });
+
+            // 连线
+            ctx.strokeStyle = 'rgba(128,128,128,0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            points.forEach((p, i) => {
+                if (i === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+
+            // 绘制emoji点
+            points.forEach(p => {
+                ctx.font = '22px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(p.emoji, p.x, p.y);
+            });
+        }
+
+        // ========== 编辑功能 ==========
+        function editRecord(id) {
+            const record = records.find(r => r.id === id);
+            if (!record) return;
+
+            editingId = id;
+            document.getElementById('editDate').value = record.date;
+            document.getElementById('editTheme').value = record.theme;
+            document.getElementById('editMessage').value = record.message;
+            document.getElementById('editCharCount').textContent = record.message.length + ' / 50 字';
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function saveEdit() {
+            const record = records.find(r => r.id === editingId);
+            if (!record) return;
+
+            const newDate = document.getElementById('editDate').value;
+            const newTheme = document.getElementById('editTheme').value;
+            const newMessage = document.getElementById('editMessage').value.trim();
+
+            if (!newDate || !newMessage) {
+                alert('请填写完整信息！');
+                return;
+            }
+            if (newMessage.length > 50) {
+                alert('字数不能超过50字！');
+                return;
+            }
+
+            record.date = newDate;
+            record.theme = newTheme;
+            record.message = newMessage;
+
+            saveRecords();
+            renderRecords();
+            updateFilterOptions();
+            closeModal();
+            alert('记录修改成功！');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingId = null;
+        }
+
+        // 编辑框字符计数
+        document.getElementById('editMessage').addEventListener('input', function() {
+            document.getElementById('editCharCount').textContent = this.value.length + ' / 50 字';
+        });
+
+        // ========== 删除功能 ==========
+        function deleteRecord(id) {
+            if (!confirm('确定要删除这条记录吗？')) return;
+            records = records.filter(r => r.id !== id);
+            saveRecords();
+            renderRecords();
+            updateFilterOptions();
+        }
+
+        // ========== 导出功能 ==========
+        function exportJSON() {
+            const dataStr = JSON.stringify(records, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `情绪记录_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCSV() {
+            let csv = '日期,情绪主题,一句话\n';
+            records.forEach(r => {
+                csv += `${r.date},${themeConfig[r.theme].name},"${r.message.replace(/"/g, '""')}"\n`;
+            });
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `情绪记录_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>'''
+
+with open('/mnt/agents/output/today_emotion.html', 'w', encoding='utf-8') as f:
+    f.write(html_code)
+
+print("File saved successfully!")
+print(f"Total lines: {len(html_code.splitlines())}")
+print(f"Total characters: {len(html_code)}")
